@@ -52,5 +52,6 @@ modules:
         url: https://github.com/lunagave/Lunagave.git
         # Tag estable v1.0, fijado a su commit. El tag todavía NO existe:
         # hay que crearlo en GitHub antes de mandar la PR.
-        tag: v1.0
-        commit: 2126272e10d76c6079ba067f34eb3a2946e38860
+        tag: v1.0.1
+        commit: a47d8b5db85a9ea96ef596bf70cc54dae70a8d8c
+
