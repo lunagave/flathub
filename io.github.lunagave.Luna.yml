@@ -1,0 +1,56 @@
+app-id: io.github.lunagave.Luna
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: luna-gui
+finish-args:
+  # Luna es una app gráfica en Python/tkinter.
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  # Luna deja que el usuario elija cualquier carpeta con sus imágenes
+  # y videos para ponerlos de fondo. Si los revisores lo piden, se puede
+  # achicar a xdg-pictures, xdg-videos y xdg-downloads.
+  - --filesystem=home
+  # NOTA IMPORTANTE (riesgo de sandbox, hay que probarlo antes de mandar):
+  # Luna pone el fondo con mpvpaper (Wayland) / xwinwrap (X11), herramientas
+  # del host que NO existen dentro del sandbox. Flathub considera estas apps
+  # "host-dependent" y "environment-locked" y las rechaza salvo excepciones
+  # caso por caso. Hay que construir y probar este Flatpak localmente con
+  # flatpak-builder y flatpak-builder-lint antes de mandar la solicitud,
+  # y comprobar que el fondo sí se pone desde dentro del Flatpak.
+  # Si no funciona, la solicitud será rechazada.
+modules:
+  - name: pillow
+    buildsystem: simple
+    build-commands:
+      - python3 -m pip install --prefix=/app --no-build-isolation --no-deps --no-warn-script-location pillow-12.1.0.tar.gz
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/d0/02/d52c733a2452ef1ffcc123b68e6606d07276b0e358db70eabad7e40042b7/pillow-12.1.0.tar.gz
+        sha256: 5c5ae0a06e9ea030ab786b0251b32c7e4ce10e58d983c0d5c56029455180b5b9
+  - name: luna
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 luna.py /app/bin/luna
+      - install -Dm755 luna_gui.py /app/bin/luna-gui
+      - install -Dm644 io.github.lunagave.Luna.desktop /app/share/applications/io.github.lunagave.Luna.desktop
+      - install -Dm644 io.github.lunagave.Luna.metainfo.xml /app/share/metainfo/io.github.lunagave.Luna.metainfo.xml
+      - install -Dm644 io.github.lunagave.Luna.png /app/share/icons/hicolor/512x512/apps/io.github.lunagave.Luna.png
+      # Las imágenes se instalan junto al script (/app/bin) porque
+      # luna_gui.py las busca en /usr/share/luna y luego junto al script
+      # (BASE_DIR). Dentro del Flatpak /usr/share/luna no existe.
+      # Alternativa más limpia: añadir /app/share/luna a ruta_archivada()
+      # en luna_gui.py y instalarlas ahí.
+      - install -Dm644 81630_0_1xuc.webp /app/bin/81630_0_1xuc.webp
+      - install -Dm644 luna-1.0-paso1-instalar.webp /app/bin/luna-1.0-paso1-instalar.webp
+      - install -Dm644 luna-1.0-paso2-instalando.webp /app/bin/luna-1.0-paso2-instalando.webp
+      - install -Dm644 luna-1.0-paso3-completa.webp /app/bin/luna-1.0-paso3-completa.webp
+      - install -Dm644 luna-1.0-instalado-carrusel.webp /app/bin/luna-1.0-instalado-carrusel.webp
+    sources:
+      - type: git
+        url: https://github.com/lunagave/Lunagave.git
+        # Tag estable v1.0, fijado a su commit. El tag todavía NO existe:
+        # hay que crearlo en GitHub antes de mandar la PR.
+        tag: v1.0
+        commit: 2126272e10d76c6079ba067f34eb3a2946e38860
