@@ -54,4 +54,3 @@ modules:
         # hay que crearlo en GitHub antes de mandar la PR.
         tag: v1.0.1
         commit: a47d8b5db85a9ea96ef596bf70cc54dae70a8d8c
-
